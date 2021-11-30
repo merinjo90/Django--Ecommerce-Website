@@ -22,6 +22,18 @@ def cart(request):
     return render(request,"store/cart.html",context)
 
 def checkout(request):
-    context={}
+    # giving the same code as cart, bcz same, total data will be rendered in frontend
+    if request.user.is_authenticated:
+        customer = request.user.customer
+        # get_or_create is used to search for a qiven object,
+        # and, if it isn't there, it then creates tht model object
+        order, created = Order.objects.get_or_create(customer=customer, complete=False)
+        # the below line, is used to query from the OrderItem model
+        items = order.orderitem_set.all()
+    else:
+        items = []
+        order = {'get_cart_total': 0, 'get_cart_items': 0}
+
+    context = {'items': items, 'order': order}
     return render(request,"store/checkout.html",context)
 
